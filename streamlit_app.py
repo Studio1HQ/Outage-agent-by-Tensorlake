@@ -102,34 +102,72 @@ with st.sidebar:
     # API Configuration
     st.markdown("### 🔧 API Configuration")
     
+    # Initialize session state for API keys if not present
+    if "api_keys_saved" not in st.session_state:
+        st.session_state.api_keys_saved = False
+    
+    # Check if keys exist in environment (for functionality) but don't pre-fill
+    env_groq = os.getenv("GROQ_API_KEY", "")
+    env_exa = os.getenv("EXA_API_KEY", "")
+    env_tensorlake = os.getenv("TENSORLAKE_API_KEY", "")
+    
+    # Use session state if available, otherwise empty string
     groq_key = st.text_input(
         "GROQ API Key", 
         type="password", 
-        value=os.getenv("GROQ_API_KEY", ""),
-        help="Your Groq API key for LLM inference"
+        value="",  # Always start empty - don't pre-fill
+        help="Your Groq API key for LLM inference. Leave empty if already set in environment."
     )
     exa_key = st.text_input(
         "EXA API Key", 
         type="password", 
-        value=os.getenv("EXA_API_KEY", ""),
-        help="Your Exa API key for semantic search"
+        value="",  # Always start empty - don't pre-fill
+        help="Your Exa API key for semantic search. Leave empty if already set in environment."
     )
     tensorlake_key = st.text_input(
         "Tensorlake API Key", 
         type="password", 
-        value=os.getenv("TENSORLAKE_API_KEY", ""),
-        help="Your Tensorlake API key"
+        value="",  # Always start empty - don't pre-fill
+        help="Your Tensorlake API key. Leave empty if already set in environment."
     )
     
+    # Only set environment variables if user provides new keys
     if groq_key:
         os.environ["GROQ_API_KEY"] = groq_key
+        st.session_state.api_keys_saved = True
+    elif env_groq:
+        # Use environment variable if user didn't provide one
+        os.environ["GROQ_API_KEY"] = env_groq
+    
     if exa_key:
         os.environ["EXA_API_KEY"] = exa_key
+        st.session_state.api_keys_saved = True
+    elif env_exa:
+        # Use environment variable if user didn't provide one
+        os.environ["EXA_API_KEY"] = env_exa
+    
     if tensorlake_key:
         os.environ["TENSORLAKE_API_KEY"] = tensorlake_key
+        st.session_state.api_keys_saved = True
+    elif env_tensorlake:
+        # Use environment variable if user didn't provide one
+        os.environ["TENSORLAKE_API_KEY"] = env_tensorlake
     
-    if st.button("💾 Save API Keys", use_container_width=True):
-        st.success("API keys saved to session!")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("💾 Save API Keys", use_container_width=True):
+            if groq_key or exa_key or tensorlake_key:
+                st.success("API keys saved to session!")
+                st.session_state.api_keys_saved = True
+            else:
+                st.info("Using API keys from environment variables (if set).")
+    
+    with col2:
+        if st.button("🗑️ Clear Fields", use_container_width=True):
+            # Clear session state
+            if "api_keys_saved" in st.session_state:
+                del st.session_state.api_keys_saved
+            st.rerun()
     
     st.markdown("---")
     
