@@ -12,11 +12,11 @@ pip install -r requirements.txt --upgrade
 
 ```bash
 # Set Tensorlake API Key (Windows PowerShell)
-$env:TENSORLAKE_API_KEY = "your_tensorlake_api_key_here"
+$env:TENSORLAKE_API_KEY = "your_tensorlake_api_key"
 
 # Set secrets for the application
-tensorlake secrets set GROQ_API_KEY=your_groq_api_key_here
-tensorlake secrets set EXA_API_KEY=your_exa_api_key_here
+tensorlake secrets set GROQ_API_KEY "your_groq_api_key"
+tensorlake secrets set EXA_API_KEY "your_exa_api_key"
 ```
 
 ## 3. Test Locally

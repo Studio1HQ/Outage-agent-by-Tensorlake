@@ -1,3 +1,6 @@
+# Tensorlake
+.tensorlake/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -38,19 +41,19 @@ env/
 .env.local
 .env.*.local
 
-# Tensorlake
-.tensorlake/
-*.toml
+# API Keys and Secrets
+*_key.txt
+*_keys.txt
+secrets.txt
+*.key
 
 # OS
 .DS_Store
 Thumbs.db
 
+# Streamlit
+.streamlit/secrets.toml
+
 # Logs
 *.log
-
-# API Keys and Secrets (extra safety)
-*_key.txt
-*_secret.txt
-secrets.txt
-api_keys.txt
+logs/

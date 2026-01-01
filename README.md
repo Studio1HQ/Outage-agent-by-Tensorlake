@@ -1,21 +1,24 @@
 # Outage Agent
 
-A serverless AI agent deployed on Tensorlake Cloud that simulates an always-on on-call engineer for Tensorlake services.
+A serverless AI agent deployed on Tensorlake Cloud that simulates an always-on on-call engineer for Tensorlake services. Features a modern Streamlit web interface for easy interaction and management.
 
 ## Overview
 
-The Outage Agent automatically analyzes alerts, gathers evidence using semantic search and web browsing, and either resolves low-risk issues or escalates uncertain/high-impact situations to human engineers.
+The Outage Agent automatically analyzes alerts, gathers evidence using semantic search and web browsing, and either resolves low-risk issues or escalates uncertain/high-impact situations to human engineers. The agent uses intelligent decision-making to handle routine issues while escalating only when truly necessary.
 
 ## Features
 
-- **Intelligent Analysis**: Uses Groq LLM for fast inference and decision-making
+- **Intelligent Analysis**: Uses Groq LLM (llama-3.3-70b-versatile) for fast inference and decision-making
 - **Evidence Gathering**: 
   - Semantic search via Exa for similar outages and root causes
   - HTTP GET tool for checking status pages and documentation
-- **Smart Escalation**: Escalates only when truly necessary (high impact, unclear causes, or ongoing issues)
+- **Smart Escalation**: Only escalates when truly necessary (high impact, ongoing issues, or unclear causes)
 - **Structured Output**: Provides clear summaries of what happened, what was done, and what to monitor
-- **Web UI**: Beautiful Streamlit interface for interactive alert analysis
-- **History Management**: Track and reuse previous analyses
+- **Modern Web UI**: Beautiful Streamlit interface with:
+  - Real-time alert analysis
+  - Analysis history with one-click reuse
+  - Color-coded results (gradient cards for different sections)
+  - Compact, expandable history items
 
 ## Architecture
 
@@ -45,9 +48,16 @@ tensorlake secrets set EXA_API_KEY "your_exa_api_key"
 
 ### 3. Test Locally
 
+**Option A: Run the agent directly**
 ```bash
 python outage_agent.py
 ```
+
+**Option B: Use the Streamlit web interface (Recommended)**
+```bash
+streamlit run streamlit_app.py
+```
+Then open your browser to `http://localhost:8501`
 
 ### 4. Deploy to Tensorlake Cloud
 
@@ -85,19 +95,20 @@ output = request.output()
 print(output)
 ```
 
-### Web UI (Streamlit)
+### Web Interface (Streamlit)
 
-Run the interactive web interface:
+The easiest way to interact with the agent is through the Streamlit web interface:
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-The UI provides:
-- Interactive alert input
-- Real-time agent analysis
-- Analysis history with click-to-reuse
-- Beautiful, modern interface
+**Features:**
+- Enter alerts in a clean text input
+- Real-time analysis with progress indicators
+- Color-coded results with gradient cards
+- Analysis history with one-click reuse
+- Sidebar configuration for API keys
 
 ### Command Line
 
@@ -133,15 +144,20 @@ python outage_agent_cli.py local "Alert text" --json-output
 
 ## Agent Behavior
 
-The agent follows strict behavioral rules:
+The agent follows intelligent decision-making rules:
 
 1. **Analyze**: Quickly analyzes the alert description
 2. **Gather Evidence**: Uses tools to find similar incidents and check relevant URLs
-3. **Decide**: 
-   - Handles expected, scheduled, known, or already resolved issues without escalation
-   - Confirms recovery for transient issues that have recovered
-   - Escalates only for high impact, ongoing issues, unclear causes, or conflicting information
-4. **Never Guess**: Always prioritizes service stability
+3. **Smart Decision Making**: 
+   - **Handles** expected, scheduled, known, or already resolved issues
+   - **Handles** transient issues that have recovered
+   - **Handles** routine, low-impact problems with analysis and recommendations
+   - **Escalates** only when:
+     - High impact on users (data loss, complete outage, critical service)
+     - Issue is ongoing/not resolved
+     - No clear explanation from alert description
+     - Tools reveal conflicting or worrying information
+4. **Tool Failure Handling**: When tools fail, relies on alert description rather than automatically escalating
 5. **Structured Summary**: Provides clear output with:
    - What happened
    - What was done (or why nothing was done)
@@ -153,14 +169,14 @@ The agent follows strict behavioral rules:
 ```
 .
 ├── outage_agent.py              # Main application with @application decorator
-├── streamlit_app.py             # Streamlit web UI for the agent
+├── streamlit_app.py             # Streamlit web interface (recommended)
 ├── test_remote_outage_agent.py  # Remote testing script
 ├── outage_agent_cli.py          # Optional CLI wrapper (requires click)
 ├── requirements.txt             # Python dependencies
-├── Assets/
-│   └── Logo.png                # Tensorlake logo
 ├── DEPLOYMENT.md               # Detailed deployment instructions
 ├── QUICKSTART.md               # Quick start guide
+├── Assets/
+│   └── Logo.png                # Tensorlake logo for UI
 └── README.md                   # This file
 ```
 
@@ -168,11 +184,11 @@ The agent follows strict behavioral rules:
 
 ### LLM Model
 
-Edit the model in `outage_agent.py` to change the Groq model:
+The agent uses Groq's `llama-3.3-70b-versatile` model by default. To change the model, edit the `outage_agent()` function in `outage_agent.py`:
 
 ```python
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",  # Change model here (e.g., "mixtral-8x7b-instant")
+    model="llama-3.3-70b-versatile",  # Change to "mixtral-8x7b-instant" or other available models
     groq_api_key=os.environ["GROQ_API_KEY"],
     temperature=0.1,
 )

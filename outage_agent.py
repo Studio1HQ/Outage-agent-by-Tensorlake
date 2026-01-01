@@ -57,11 +57,20 @@ def outage_agent(alert_description: str) -> str:
     if not alert_description or not alert_description.strip():
         return "Error: No alert description provided."
 
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile",  # Fast, reliable, and widely available on Groq
-        groq_api_key=os.environ["GROQ_API_KEY"],
-        temperature=0.1,
-    )
+    # Try to use llama-3.3-70b-versatile, fallback to mixtral-8x7b-instant if rate limited
+    try:
+        llm = ChatGroq(
+            model="llama-3.3-70b-versatile",  # Fast, reliable, and widely available on Groq
+            groq_api_key=os.environ["GROQ_API_KEY"],
+            temperature=0.1,
+        )
+    except Exception as e:
+        # Fallback to alternative model if primary fails
+        llm = ChatGroq(
+            model="mixtral-8x7b-instant",  # Alternative model
+            groq_api_key=os.environ["GROQ_API_KEY"],
+            temperature=0.1,
+        )
 
     # Define LangChain tools that wrap Tensorlake functions
     @tool
@@ -79,34 +88,90 @@ def outage_agent(alert_description: str) -> str:
 
     system_prompt = """You are an always-on on-call engineer responsible for service stability.
 
-Given an alert, your job is to:
-- Quickly understand the issue
-- Use tools to gather evidence (search for similar incidents, check status pages)
-- Determine the most likely cause and resolution
+Your job is to analyze alerts and provide structured, actionable output. Answer exactly five questions:
+1. What broke?
+2. Why did it break?
+3. What did you do about it?
+4. Did it work?
+5. Do humans need to step in?
 
-Decision rules:
-- If the alert itself clearly states that the situation is expected, scheduled, known, a false positive, or already resolved → treat it as low-risk and do NOT escalate.
-  Example: "expected behavior during monthly index rebuild", "job completed successfully", "memory returning to normal"
+OUTPUT FORMAT (follow this exactly):
 
-- If the alert describes a transient issue that has already recovered (error rate back to normal, job finished, etc.) → confirm recovery and do NOT escalate.
+1. ONE-PARAGRAPH SUMMARY (for humans - appears first)
+Write a concise, single-paragraph summary that a human can read quickly. Include: what happened, root cause, actions taken, and current status.
 
-- Escalate only if at least one of the following is true:
-  1. High or potentially high impact on users (data loss, complete outage, critical service affected)
-  2. The issue is ongoing / not resolved
-  3. No clear explanation or root cause is apparent from the alert description
-  4. Tools reveal conflicting or worrying information
+2. STRUCTURED DECISION OUTPUT (JSON format for systems)
+You MUST output valid, parseable JSON. Follow this EXACT format with proper syntax:
 
-- When tools fail (search or browse errors), do NOT automatically escalate. 
-  Instead, rely on the information provided in the alert description. 
-  If the alert gives a plausible benign explanation, accept it unless contradicted by other evidence.
+Example of CORRECT JSON:
+{{
+  "incident_id": "inc-2024-01-15-1430",
+  "service": "authentication-service",
+  "severity": "high",
+  "status": "ongoing",
+  "root_cause": "Database connection pool exhausted due to spike in traffic",
+  "confidence": 0.75,
+  "actions_taken": ["Restarted connection pool", "Increased pool size", "Added monitoring"],
+  "verification": {{
+    "metrics_before": "100 connections",
+    "metrics_after": "200 connections"
+  }},
+  "should_escalate": true,
+  "next_recommendation": "Monitor connection pool usage and consider auto-scaling"
+}}
 
-Always end your response with a clear summary:
-• What happened
-• What was done (or why nothing was done)
-• What to monitor next
-• Only include "ESCALATION REQUIRED" if the issue genuinely needs human intervention based on the criteria above
+CRITICAL JSON RULES - READ CAREFULLY:
+1. EVERY field MUST have a comma after it EXCEPT the last field in the object
+2. Arrays MUST use this format: ["value1", "value2", "value3"] - NO indexes like 0: or 1:
+3. Strings MUST be in double quotes: "text"
+4. Numbers have NO quotes: 0.85 (not "0.85")
+5. Booleans are lowercase: true or false (not "true" or True)
+6. Nested objects use curly braces: {{"key": "value"}}
+7. After every key-value pair, add a comma: "key": "value",
 
-Be practical: Most alerts can be analyzed and handled. Only escalate when truly necessary."""
+WRONG: "actions_taken": [0: "action1", 1: "action2"]  ❌
+RIGHT: "actions_taken": ["action1", "action2"]  ✅
+
+WRONG: "key": "value" "key2": "value2"  ❌ (missing comma)
+RIGHT: "key": "value", "key2": "value2"  ✅
+
+Before outputting, verify your JSON is valid by checking:
+- Every field (except the last) has a comma
+- Arrays use ["item1", "item2"] format, NOT [0: item1, 1: item2]
+- All strings are in double quotes
+- No trailing commas
+
+3. SLACK-FRIENDLY CONDENSED VERSION (optional, if applicable)
+🚨 Incident [Auto-Handled | Requires Attention]
+Service: [service-name]
+Cause: [brief root cause]
+Action: [what was done]
+Result: [outcome]
+Escalation: [Not required ✅ | Required ⚠️]
+
+IMPORTANT OUTPUT RULES:
+- NEVER output long chain-of-thought reasoning
+- NEVER dump raw logs or technical details without context
+- NEVER use uncertain language like "maybe", "possibly", "I think" - be decisive
+- NEVER use technical jargon without explaining the decision
+- ALWAYS be clear and actionable
+- If you cannot determine root cause, state "Root cause unclear - requires investigation" and set confidence < 0.5
+
+ESCALATION RULES:
+DO NOT ESCALATE if:
+- Alert describes expected, scheduled, known, or already resolved situations
+- Alert describes a transient issue that has recovered
+- Alert describes a routine issue with a clear explanation
+- You can provide reasonable analysis and recommendations
+
+ONLY ESCALATE if ALL are true:
+1. Issue is CURRENTLY ONGOING (not resolved, not expected, not transient)
+2. HIGH IMPACT (data loss, complete outage, critical service down, security breach)
+3. Cannot provide reasonable analysis OR requires immediate human intervention
+
+When tools fail, do NOT escalate. Provide analysis based on alert description alone.
+
+Remember: Most alerts should result in analysis and recommendations, NOT escalation."""
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
@@ -177,4 +242,12 @@ if __name__ == "__main__":
 
     request: Request = run_local_application(outage_agent, alert.strip())
     output = request.output()
-    print(output)
+    # Handle Unicode encoding for Windows console
+    try:
+        print(output)
+    except UnicodeEncodeError:
+        # Fallback for Windows console that doesn't support all Unicode
+        import sys
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        print(output)

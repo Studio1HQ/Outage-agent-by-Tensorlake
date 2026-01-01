@@ -25,13 +25,13 @@ Set your Tensorlake API key:
 
 ```bash
 # Windows PowerShell
-$env:TENSORLAKE_API_KEY = "your_tensorlake_api_key_here"
+$env:TENSORLAKE_API_KEY = "your_tensorlake_api_key"
 
 # Windows CMD
-set TENSORLAKE_API_KEY=your_tensorlake_api_key_here
+set TENSORLAKE_API_KEY=your_tensorlake_api_key
 
 # Linux/Mac
-export TENSORLAKE_API_KEY="your_tensorlake_api_key_here"
+export TENSORLAKE_API_KEY="your_tensorlake_api_key"
 ```
 
 ### 2. Set Secrets
@@ -40,10 +40,10 @@ Configure the required API keys as Tensorlake secrets:
 
 ```bash
 # Set Groq API Key
-tensorlake secrets set GROQ_API_KEY=your_groq_api_key_here
+tensorlake secrets set GROQ_API_KEY "your_groq_api_key"
 
 # Set Exa API Key
-tensorlake secrets set EXA_API_KEY=your_exa_api_key_here
+tensorlake secrets set EXA_API_KEY "your_exa_api_key"
 ```
 
 ### 3. Deploy the Application
