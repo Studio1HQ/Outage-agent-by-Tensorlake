@@ -1,31 +1,28 @@
-# Outage Agent
+# 🚨 Outage Agent by Tensorlake
 
-A serverless AI agent deployed on Tensorlake Cloud that simulates an always-on on-call engineer for Tensorlake services. Features a modern Streamlit web interface for easy interaction and management.
+A production-ready serverless AI agent deployed on Tensorlake Cloud that simulates an always-on on-call engineer. The agent automatically analyzes alerts, investigates incidents using semantic search and web browsing, and provides intelligent escalation decisions with structured output.
 
-## Overview
+## 🌟 Features
 
-The Outage Agent automatically analyzes alerts, gathers evidence using semantic search and web browsing, and either resolves low-risk issues or escalates uncertain/high-impact situations to human engineers. The agent uses intelligent decision-making to handle routine issues while escalating only when truly necessary.
-
-## Features
-
-- **Intelligent Analysis**: Uses Groq LLM (llama-3.3-70b-versatile) for fast inference and decision-making
-- **Evidence Gathering**: 
+- **🤖 Intelligent Analysis**: Uses Groq LLM (llama-3.3-70b-versatile) for fast inference and decision-making
+- **🔍 Evidence Gathering**: 
   - Semantic search via Exa for similar outages and root causes
   - HTTP GET tool for checking status pages and documentation
-- **Smart Escalation**: Only escalates when truly necessary (high impact, ongoing issues, or unclear causes)
-- **Structured Output**: Provides clear summaries of what happened, what was done, and what to monitor
-- **Modern Web UI**: Beautiful Streamlit interface with:
+- **⚡ Smart Escalation**: Only escalates when truly necessary (high impact, ongoing issues, or unclear causes)
+- **📊 Structured Output**: Provides clear summaries with JSON format for systems integration
+- **💻 Modern Web UI**: Beautiful Streamlit interface with:
   - Real-time alert analysis
   - Analysis history with one-click reuse
-  - Color-coded results (gradient cards for different sections)
+  - Color-coded results with detailed breakdowns
   - Compact, expandable history items
 
-## Architecture
+## 🏗️ Architecture
 
 - **Platform**: Tensorlake Applications (deployed to Tensorlake Cloud)
 - **LLM**: Groq (llama-3.3-70b-versatile)
 - **Tools**: Exa search, HTTP GET (all implemented as `@function` decorators)
 - **Orchestration**: LangChain for prompt templates and agent loops
+- **UI**: Streamlit for interactive web interface
 
 ## Quick Start
 
@@ -213,7 +210,37 @@ See `DEPLOYMENT.md` for detailed setup instructions.
 
 See `DEPLOYMENT.md` for common issues and troubleshooting steps.
 
-## License
+## 📝 Output Format
 
-This project is part of the Tensorlake ecosystem.
+The agent provides structured output in three formats:
+
+1. **One-Paragraph Summary**: Human-readable summary for quick understanding
+2. **Structured JSON**: Machine-readable format with:
+   - Incident ID, service, severity, status
+   - Root cause analysis with confidence score
+   - Actions taken and verification metrics
+   - Escalation decision and recommendations
+3. **Slack-Friendly Format**: Condensed version for notifications
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Tensorlake](https://tensorlake.ai) for serverless AI deployment
+- Powered by [Groq](https://groq.com) for fast LLM inference
+- Uses [Exa](https://exa.ai) for semantic search
+- UI built with [Streamlit](https://streamlit.io)
+
+## 📧 Support
+
+For issues and questions:
+- Open an issue on [GitHub](https://github.com/Aakash67/Outage-agent-by-Tensorlake/issues)
+- Check the [Tensorlake documentation](https://docs.tensorlake.ai)
+- Review `DEPLOYMENT.md` for deployment help
 
