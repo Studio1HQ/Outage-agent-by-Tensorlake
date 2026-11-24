@@ -1,246 +1,186 @@
-# 🚨 Outage Agent by Tensorlake
+<div align="center">
 
-A production-ready serverless AI agent deployed on Tensorlake Cloud that simulates an always-on on-call engineer. The agent automatically analyzes alerts, investigates incidents using semantic search and web browsing, and provides intelligent escalation decisions with structured output.
+<img src="https://raw.githubusercontent.com/Studio1HQ/Studio1HQ/main/assets/banners/Outage-agent-by-Tensorlake.webp" alt="Outage Agent on Tensorlake Cloud: A serverless on-call agent with a Streamlit UI" width="100%" />
 
-## 🌟 Features
+<br />
+<br />
 
-- **🤖 Intelligent Analysis**: Uses Groq LLM (llama-3.3-70b-versatile) for fast inference and decision-making
-- **🔍 Evidence Gathering**: 
-  - Semantic search via Exa for similar outages and root causes
-  - HTTP GET tool for checking status pages and documentation
-- **⚡ Smart Escalation**: Only escalates when truly necessary (high impact, ongoing issues, or unclear causes)
-- **📊 Structured Output**: Provides clear summaries with JSON format for systems integration
-- **💻 Modern Web UI**: Beautiful Streamlit interface with:
-  - Real-time alert analysis
-  - Analysis history with one-click reuse
-  - Color-coded results with detailed breakdowns
-  - Compact, expandable history items
+# Outage Agent on Tensorlake Cloud
 
-## 🏗️ Architecture
+### A serverless on-call agent with a Streamlit UI
 
-- **Platform**: Tensorlake Applications (deployed to Tensorlake Cloud)
-- **LLM**: Groq (llama-3.3-70b-versatile)
-- **Tools**: Exa search, HTTP GET (all implemented as `@function` decorators)
-- **Orchestration**: LangChain for prompt templates and agent loops
-- **UI**: Streamlit for interactive web interface
+A tool-calling agent deployed on Tensorlake Cloud that analyses incident alerts with Groq, gathers evidence with Exa and HTTP GET, and decides whether to escalate. Includes a Streamlit UI and a CLI.
 
-## Quick Start
+<br />
 
-### 1. Install Dependencies
+[![Built by Studio1](https://img.shields.io/badge/Built_by_Studio1-f97316?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAgMTYwIiBmaWxsPSJub25lIj48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTAgMzVDMCAxNi42ODA3IDE0LjA3NDQgMS42NDg0NCAzMiAwLjEyNjk1M1YxNDFINTEuMDUyM0M1Mi40MzA4IDEzNy4zNDQgNTQuNzQ0NiAxMzMuNjg5IDU3Ljk5MzggMTMwLjAzM0M2MS4xNDQ2IDEyNi41MDggNjQuNjg5MiAxMjMuNDQgNjguNjI3NyAxMjAuODI5QzcyLjU2NjIgMTE4LjM0OSA3Ni4zNTY5IDExNi43ODIgODAgMTE2LjEyOVY4Ni43NTQ0Qzc1LjQ3MDggODcuOTI5MiA3MS4zODQ2IDg5LjY5MTkgNjcuNzQxNSA5Mi4wNDE1QzY0IDk0LjUyMjUgNjAuNzUwOCA5Ny40NiA1Ny45OTM4IDEwMC44NTRDNTYuNTM0NSAxMDIuNzIgNTUuMjU0NSAxMDQuNjU5IDU0LjE1MzkgMTA2LjY3MVYwSDEyNUMxNDQuMzMgMCAxNjAgMTUuNjY5OSAxNjAgMzVWMTI1QzE2MCAxNDQuMzMgMTQ0LjMzIDE2MCAxMjUgMTYwSDEyNFYxOEgxMDQuOTQ4QzEwMy41NjkgMjEuNjgxNiAxMDEuMjU1IDI1LjM2MjggOTguMDA2MiAyOS4wNDQ0Qzk0Ljg1NTQgMzIuNTk0MiA5MS4zMTA4IDM1LjY4NDEgODcuMzcyMyAzOC4zMTRDODMuNDMzOCA0MC44MTIgNzkuNjQzMSA0Mi4zODk2IDc2IDQzLjA0NzRWNzIuNjMwNEM4MC41MjkyIDcxLjQ0NzMgODQuNjE1NCA2OS42NzI0IDg4LjI1ODUgNjcuMzA1N0M5MiA2NC44MDc2IDk1LjI0OTIgNjEuODQ5MSA5OC4wMDYyIDU4LjQzMDdDOTkuNDY1NSA1Ni41NTEzIDEwMC43NDUgNTQuNTk4NiAxMDEuODQ2IDUyLjU3MjNWMTYwSDM1QzE1LjY3IDE2MCAwIDE0NC4zMyAwIDEyNVYzNVoiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4K)](https://studio1hq.com)
+[![Built with Tensorlake](https://img.shields.io/badge/Built_with_Tensorlake-141414?style=for-the-badge)](https://tensorlake.ai)
+
+[Tensorlake docs](https://docs.tensorlake.ai) &nbsp;·&nbsp; [Tensorlake](https://tensorlake.ai) &nbsp;·&nbsp; [More examples](https://github.com/Studio1HQ) &nbsp;·&nbsp; [studio1hq.com](https://studio1hq.com)
+
+</div>
+
+<br />
+
+## Overview
+
+This is an always-on, on-call style agent that runs as a serverless application on Tensorlake Cloud. You give it a plain-text alert. It analyses the alert, looks for similar incidents and checks status pages, then decides whether to handle the issue or escalate it to a human, and returns a structured summary.
+
+The agent runs on Groq with a LangChain tool-calling loop. Its two tools, Exa semantic search and an HTTP GET fetcher, are Tensorlake `@function`s. A Streamlit app, a test script and a small CLI wrap the deployed agent.
+
+## Features
+
+- **Alert analysis**: Groq `llama-3.3-70b-versatile` at temperature 0.1 reads the alert and picks tools.
+- **Evidence gathering**: Exa neural search (5 results by default) for similar outages, and an HTTP GET tool (timeout 10 to 15 seconds) for status pages and docs.
+- **Smart escalation**: The agent handles expected, scheduled, resolved, transient or low-impact issues. It escalates for high user impact, ongoing issues, unclear cause or conflicting evidence. If a tool fails, it relies on the alert text rather than escalating by default.
+- **Structured output**: A one-paragraph summary, a JSON record (incident ID, service, severity, status, root cause with confidence, actions, escalation decision) and a Slack-friendly version.
+- **Streamlit UI**: Alert input, progress indicators, colour-coded results, analysis history with one-click reuse and a sidebar for API keys.
+- **CLI and test script**: `outage_agent_cli.py` for local or remote runs, and `test_remote_outage_agent.py` for the deployed app.
+
+## Tech stack
+
+| Layer | Tool |
+| --- | --- |
+| Platform | [Tensorlake](https://tensorlake.ai) applications (cloud deployment) |
+| LLM | [Groq](https://groq.com) (`llama-3.3-70b-versatile`) |
+| Search | [Exa](https://exa.ai) |
+| Orchestration | [LangChain](https://langchain.com) |
+| UI | [Streamlit](https://streamlit.io) |
+| CLI | Click |
+
+## Getting started
+
+### Prerequisites
+
+- Python 3.11 (the container image uses `python:3.11-slim`; the dev container uses Python 3.11)
+- A [Tensorlake](https://tensorlake.ai) API key
+- A [Groq](https://console.groq.com) API key
+- An [Exa](https://exa.ai) API key
+
+### Installation
 
 ```bash
+git clone https://github.com/Studio1HQ/Outage-agent-by-Tensorlake.git
+cd Outage-agent-by-Tensorlake
 pip install -r requirements.txt --upgrade
 ```
 
-### 2. Set Up Secrets
+### Environment variables
+
+| Variable | Description |
+| --- | --- |
+| `TENSORLAKE_API_KEY` | Your Tensorlake Cloud API key. |
+| `GROQ_API_KEY` | Groq key for LLM inference. Stored as a Tensorlake secret for the deployed app. |
+| `EXA_API_KEY` | Exa key for semantic search. Stored as a Tensorlake secret for the deployed app. |
 
 ```bash
-# Set Tensorlake API Key
 export TENSORLAKE_API_KEY="your_tensorlake_api_key"
-
-# Set service API keys
 tensorlake secrets set GROQ_API_KEY "your_groq_api_key"
 tensorlake secrets set EXA_API_KEY "your_exa_api_key"
 ```
 
-### 3. Test Locally
+### Run
 
-**Option A: Run the agent directly**
+Run the agent locally:
+
 ```bash
 python outage_agent.py
 ```
 
-**Option B: Use the Streamlit web interface (Recommended)**
+Or use the Streamlit interface and open [http://localhost:8501](http://localhost:8501):
+
 ```bash
 streamlit run streamlit_app.py
 ```
-Then open your browser to `http://localhost:8501`
 
-### 4. Deploy to Tensorlake Cloud
+Deploy to Tensorlake Cloud and test the deployed agent:
 
 ```bash
 tensorlake deploy outage_agent.py
-```
-
-### 5. Test Remotely
-
-```bash
 python test_remote_outage_agent.py
-```
-
-## Usage
-
-### Local Execution
-
-```python
-from tensorlake.applications import run_local_application, Request
-
-alert = "Alert: High error rate detected in API service"
-request: Request = run_local_application(outage_agent, alert)
-output = request.output()
-print(output)
-```
-
-### Remote Execution
-
-```python
-from tensorlake.applications import run_remote_application
-
-alert = "Alert: Service degradation detected"
-request = run_remote_application("outage_agent", alert)
-output = request.output()
-print(output)
-```
-
-### Web Interface (Streamlit)
-
-The easiest way to interact with the agent is through the Streamlit web interface:
-
-```bash
-streamlit run streamlit_app.py
-```
-
-**Features:**
-- Enter alerts in a clean text input
-- Real-time analysis with progress indicators
-- Color-coded results with gradient cards
-- Analysis history with one-click reuse
-- Sidebar configuration for API keys
-
-### Command Line
-
-**Using the test script:**
-```bash
-# Test with default alert
-python test_remote_outage_agent.py
-
-# Test with custom alert
 python test_remote_outage_agent.py "Alert: Database connection pool exhausted"
 ```
 
-**Using the CLI wrapper (optional):**
+CLI wrapper (needs `click`):
+
 ```bash
-# Install CLI dependencies
-pip install click
-
-# Run locally
 python outage_agent_cli.py local "Alert: Service degradation detected"
-
-# Run remotely
 python outage_agent_cli.py remote "Alert: Service degradation detected"
-
-# Run test alert
 python outage_agent_cli.py test
-
-# Read alert from file
 python outage_agent_cli.py local --file alert.txt
-
-# JSON output
 python outage_agent_cli.py local "Alert text" --json-output
 ```
 
-## Agent Behavior
-
-The agent follows intelligent decision-making rules:
-
-1. **Analyze**: Quickly analyzes the alert description
-2. **Gather Evidence**: Uses tools to find similar incidents and check relevant URLs
-3. **Smart Decision Making**: 
-   - **Handles** expected, scheduled, known, or already resolved issues
-   - **Handles** transient issues that have recovered
-   - **Handles** routine, low-impact problems with analysis and recommendations
-   - **Escalates** only when:
-     - High impact on users (data loss, complete outage, critical service)
-     - Issue is ongoing/not resolved
-     - No clear explanation from alert description
-     - Tools reveal conflicting or worrying information
-4. **Tool Failure Handling**: When tools fail, relies on alert description rather than automatically escalating
-5. **Structured Summary**: Provides clear output with:
-   - What happened
-   - What was done (or why nothing was done)
-   - What should be monitored next
-   - Escalation reason (if escalated)
-
-## Project Structure
-
-```
-.
-├── outage_agent.py              # Main application with @application decorator
-├── streamlit_app.py             # Streamlit web interface (recommended)
-├── test_remote_outage_agent.py  # Remote testing script
-├── outage_agent_cli.py          # Optional CLI wrapper (requires click)
-├── requirements.txt             # Python dependencies
-├── DEPLOYMENT.md               # Detailed deployment instructions
-├── QUICKSTART.md               # Quick start guide
-├── Assets/
-│   └── Logo.png                # Tensorlake logo for UI
-└── README.md                   # This file
-```
-
-## Configuration
-
-### LLM Model
-
-The agent uses Groq's `llama-3.3-70b-versatile` model by default. To change the model, edit the `outage_agent()` function in `outage_agent.py`:
+Call it from Python:
 
 ```python
-llm = ChatGroq(
-    model="llama-3.3-70b-versatile",  # Change to "mixtral-8x7b-instant" or other available models
-    groq_api_key=os.environ["GROQ_API_KEY"],
-    temperature=0.1,
-)
+from tensorlake.applications import run_local_application, run_remote_application
+
+# Local
+request = run_local_application(outage_agent, "Alert: High error rate detected in API service")
+print(request.output())
+
+# Deployed
+request = run_remote_application("outage_agent", "Alert: Service degradation detected")
+print(request.output())
 ```
 
-### Tool Settings
+To change the model, edit the `ChatGroq(...)` call in `outage_agent()` in `outage_agent.py`. See `DEPLOYMENT.md` for detailed deployment steps and troubleshooting, and `QUICKSTART.md` for a short guide.
 
-- **Exa Search**: Default `num_results=5`
-- **HTTP GET**: Default `timeout=10` seconds
+## How it works
 
-## API Keys
+1. `outage_agent` in `outage_agent.py` is the `@application()` entry point. It validates the alert text and builds the Groq model.
+2. Two Tensorlake functions act as tools: `search_exa` (needs `EXA_API_KEY`) and `browse_url`. They are wrapped as LangChain tools inside the agent.
+3. A tool-calling loop lets the model gather evidence, then it writes the summary and escalation decision.
+4. The Streamlit app and CLI call the same application locally or on Tensorlake Cloud.
 
-The following API keys are required:
+```text
+.
+├── outage_agent.py              # @application entry point and tools
+├── streamlit_app.py             # Streamlit web interface
+├── test_remote_outage_agent.py  # Remote test script
+├── outage_agent_cli.py          # Optional CLI wrapper
+├── requirements.txt
+├── DEPLOYMENT.md
+├── QUICKSTART.md
+├── CONTRIBUTING.md
+└── Assets/Logo.png
+```
 
-- **TENSORLAKE_API_KEY**: Your Tensorlake Cloud API key
-- **GROQ_API_KEY**: Groq API key for LLM inference
-- **EXA_API_KEY**: Exa API key for semantic search
+## Resources
 
-See `DEPLOYMENT.md` for detailed setup instructions.
+- [Tensorlake docs](https://docs.tensorlake.ai): applications, secrets and deployment.
+- [Tensorlake](https://tensorlake.ai): the platform used here.
+- [Groq](https://groq.com): fast LLM inference.
+- [Exa](https://exa.ai): semantic search API.
+- [Streamlit](https://streamlit.io): the UI framework.
+- [CONTRIBUTING.md](CONTRIBUTING.md): contribution guidelines.
 
-## Troubleshooting
+## License
 
-See `DEPLOYMENT.md` for common issues and troubleshooting steps.
+Released under the [MIT License](LICENSE).
 
-## 📝 Output Format
+<br />
 
-The agent provides structured output in three formats:
+---
 
-1. **One-Paragraph Summary**: Human-readable summary for quick understanding
-2. **Structured JSON**: Machine-readable format with:
-   - Incident ID, service, severity, status
-   - Root cause analysis with confidence score
-   - Actions taken and verification metrics
-   - Escalation decision and recommendations
-3. **Slack-Friendly Format**: Condensed version for notifications
+<div align="center">
 
-## 🤝 Contributing
+<a href="https://studio1hq.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Studio1HQ/website/main/brand/studio1-logo-on-dark.svg" />
+    <img src="https://raw.githubusercontent.com/Studio1HQ/website/main/brand/studio1-logo-on-light.svg" alt="Studio1" width="160" />
+  </picture>
+</a>
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Built by **[Studio1](https://studio1hq.com)**, the technical content and DevRel partner for devtool teams. Made with [Tensorlake](https://tensorlake.ai).<br />
+Browse more open-source examples at [github.com/Studio1HQ](https://github.com/Studio1HQ).
 
-## 📄 License
+[![Website](https://img.shields.io/badge/studio1hq.com-0b0807?style=for-the-badge&logo=googlechrome&logoColor=white)](https://studio1hq.com)
+[![Book a call](https://img.shields.io/badge/Book_a_strategy_call-f97316?style=for-the-badge&logo=googlecalendar&logoColor=white)](https://cal.com/studio1/collab)
+[![X](https://img.shields.io/badge/%40Studio1HQ-141414?style=for-the-badge&logo=x&logoColor=white)](https://x.com/Studio1HQ)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0a66c2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/studio1hq/)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+<sub><a href="https://studio1hq.com">studio1hq.com</a> · Technical content, docs, video and DevRel for devtools</sub>
 
-## 🙏 Acknowledgments
-
-- Built with [Tensorlake](https://tensorlake.ai) for serverless AI deployment
-- Powered by [Groq](https://groq.com) for fast LLM inference
-- Uses [Exa](https://exa.ai) for semantic search
-- UI built with [Streamlit](https://streamlit.io)
-
-## 📧 Support
-
-For issues and questions:
-- Open an issue on [GitHub](https://github.com/Aakash67/Outage-agent-by-Tensorlake/issues)
-- Check the [Tensorlake documentation](https://docs.tensorlake.ai)
-- Review `DEPLOYMENT.md` for deployment help
-
+</div>
